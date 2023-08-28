@@ -7,8 +7,13 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Main {
 
+    private static final Random RANDOM = new Random();
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -42,12 +48,112 @@ public class Main {
             matchups.addAll(getConferenceMatchups(league));
             matchups.addAll(getInterConferenceMatchups(league));
 
-            for (Matchup matchup : matchups) {
-                System.out.println(matchup);
+            List<Team> teams = league.getConferences()
+                .stream()
+                .flatMap(conference -> conference.getDivisions()
+                    .stream()
+                    .flatMap(division -> division.getTeams().stream()))
+                .collect(
+                    Collectors.toList());
+
+            List<Game> games = scheduleGames(matchups, teams);
+
+            for (Game game : games) {
+                System.out.println(game);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static List<Game> scheduleGames(List<Matchup> matchups, List<Team> teams) {
+        Collections.shuffle(matchups);
+        List<Game> games = new ArrayList<>();
+
+        final List<Matchup> reservedMatchups = reserveMatchups(matchups, teams);
+
+        Set<Team> playedYesterday = new HashSet<>();
+        Set<Team> playedTwoDaysAgo = new HashSet<>();
+
+        LocalDate today = OPENING_DAY;
+        while (!matchups.isEmpty()) {
+            Set<Team> playedToday = new HashSet<>();
+            final int maxGamesToday = getNumberOfGamesToday(today);
+
+            int matchupIndex = 0;
+            int gamesToday = 0;
+            while (matchupIndex < matchups.size() && gamesToday < maxGamesToday) {
+
+                Matchup match = matchups.get(matchupIndex);
+
+                if (canPlayToday(match.getAway(), playedToday, playedYesterday, playedTwoDaysAgo)
+                    && canPlayToday(match.getHome(), playedToday, playedYesterday, playedTwoDaysAgo)) {
+
+                    matchups.remove(matchupIndex);
+                    games.add(new Game(today, match));
+                    playedToday.add(match.getAway());
+                    playedToday.add(match.getHome());
+                    gamesToday++;
+                } else {
+                    matchupIndex++;
+                }
+            }
+
+            playedTwoDaysAgo = playedYesterday;
+            playedYesterday = playedToday;
+            today = today.plusDays(1);
+        }
+
+        LocalDate lastDayOfRegularSeason = today.plusDays(1);
+        for (Matchup matchup : reservedMatchups) {
+            games.add(new Game(lastDayOfRegularSeason, matchup));
+        }
+
+        return games;
+    }
+
+    private static boolean canPlayToday(
+        Team team,
+        Set<Team> playedToday,
+        Set<Team> playedYesterday,
+        Set<Team> playedTwoDaysAgo) {
+        return !playedTwiceInLastTwoDays(team, playedYesterday, playedTwoDaysAgo) && !playedToday.contains(team);
+    }
+
+    private static boolean playedTwiceInLastTwoDays(Team team, Set<Team> playedYesterday, Set<Team> playedTwoDaysAgo) {
+        return playedYesterday.contains(team) && playedTwoDaysAgo.contains(team);
+    }
+
+    private static int getNumberOfGamesToday(LocalDate today) {
+        if (today.equals(OPENING_DAY)) {
+            return randomBetweenInclusive(2, 3);
+        } else if (today.equals(CHRISTMAS_EVE)) {
+            return 0;
+        } else if (today.equals(CHRISTMAS)) {
+            return randomBetweenInclusive(5, 6);
+        } else if (today.equals(SUPER_BOWL_SUNDAY)) {
+            return 2;
+        } else {
+            return randomBetweenInclusive(5, 10);
+        }
+    }
+
+    private static List<Matchup> reserveMatchups(List<Matchup> matchups, List<Team> teams) {
+        List<Matchup> reservedMatchups = new ArrayList<>();
+        for (int i = 0; i < teams.size(); i = i + 2) {
+            final Team away = teams.get(i);
+            final Team home = teams.get(i + 1);
+            Matchup match = matchups.stream()
+                .filter(m -> m.getAway().equals(away) && m.getHome().equals(home))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException(
+                    "Should have been able to find matchup between any two teams at start of process."));
+            reservedMatchups.add(match);
+        }
+        if (!matchups.removeAll(reservedMatchups)) {
+            throw new RuntimeException("Could not remove reserved matchups from master list.");
+        }
+        return reservedMatchups;
     }
 
     private static List<Matchup> getDivisionMatchups(League league) {
@@ -67,6 +173,8 @@ public class Main {
                 }
             }
         }
+
+        Collections.shuffle(matchups);
         return matchups;
     }
 
@@ -95,6 +203,8 @@ public class Main {
                 }
             }
         }
+
+        Collections.shuffle(matchups);
         return matchups;
     }
 
@@ -124,6 +234,11 @@ public class Main {
             }
         }
 
+        Collections.shuffle(matchups);
         return matchups;
+    }
+
+    private static int randomBetweenInclusive(int least, int greatest) {
+        return RANDOM.nextInt((greatest + 1) - least) + least;
     }
 }

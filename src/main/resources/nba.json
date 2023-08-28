@@ -1,0 +1,165 @@
+{
+  "name": "National Basketball Association",
+  "conferences": [
+    {
+      "name": "Western Conference",
+      "divisions": [
+        {
+          "name": "Northwest Division",
+          "teams": [
+            {
+              "location": "Utah",
+              "name": "Jazz"
+            },
+            {
+              "location": "Minnesota",
+              "name": "Timberwolves"
+            },
+            {
+              "location": "Portland",
+              "name": "Trail Blazers"
+            },
+            {
+              "location": "Oklahoma City",
+              "name": "Thunder"
+            },
+            {
+              "location": "Denver",
+              "name": "Nuggets"
+            }
+          ]
+        },
+        {
+          "name": "Pacific Division",
+          "teams": [
+            {
+              "location": "Sacramento",
+              "name": "Kings"
+            },
+            {
+              "location": "Golden State",
+              "name": "Warriors"
+            },
+            {
+              "location": "Los Angeles",
+              "name": "Lakers"
+            },
+            {
+              "location": "Los Angeles",
+              "name": "Clippers"
+            },
+            {
+              "location": "Phoenix",
+              "name": "Suns"
+            }
+          ]
+        },
+        {
+          "name": "Southwest Division",
+          "teams": [
+            {
+              "location": "Memphis",
+              "name": "Grizzlies"
+            },
+            {
+              "location": "Dallas",
+              "name": "Mavericks"
+            },
+            {
+              "location": "Houston",
+              "name": "Rockets"
+            },
+            {
+              "location": "San Antonio",
+              "name": "Spurs"
+            },
+            {
+              "location": "New Orleans",
+              "name": "Pelicans"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Eastern Conference",
+      "divisions": [
+        {
+          "name": "Central Division",
+          "teams": [
+            {
+              "location": "Milwaukee",
+              "name": "Bucks"
+            },
+            {
+              "location": "Detroit",
+              "name": "Pistons"
+            },
+            {
+              "location": "Indiana",
+              "name": "Pacers"
+            },
+            {
+              "location": "Chicago",
+              "name": "Bulls"
+            },
+            {
+              "location": "Cleveland",
+              "name": "Cavaliers"
+            }
+          ]
+        },
+        {
+          "name": "Atlantic Division",
+          "teams": [
+            {
+              "location": "Philadelphia",
+              "name": "76ers"
+            },
+            {
+              "location": "Boston",
+              "name": "Celtics"
+            },
+            {
+              "location": "Toronto",
+              "name": "Raptors"
+            },
+            {
+              "location": "Brooklyn",
+              "name": "Nets"
+            },
+            {
+              "location": "New York",
+              "name": "Knicks"
+            }
+          ]
+        },
+        {
+          "name": "Southeast Division",
+          "teams": [
+            {
+              "location": "Miami",
+              "name": "Heat"
+            },
+            {
+              "location": "Orlando",
+              "name": "Magic"
+            },
+            {
+              "location": "Atlanta",
+              "name": "Hawks"
+            },
+            {
+              "location": "Charlotte",
+              "name": "Hornets"
+            },
+            {
+              "location": "Washington",
+              "name": "Wizards"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
